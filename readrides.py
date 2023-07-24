@@ -40,7 +40,7 @@ def read_rides_as_dicts(filename):
 	return records
 
 class Row:
-	# Uncomment to see effect of slots
+	# slots may limit peak memory usage
 	__slots__ = ('route', 'date', 'daytype', 'rides')
 	def __init__(self, route, date, daytype, rides):
 		self.route = route
@@ -77,5 +77,4 @@ if __name__ == '__main__':
 		print(str(f))
 		read_rides = f # Change to as_dicts, as_instances, etc.
 		rides = read_rides("Data/ctabus.csv")
-
 		print('Memory Use: Current %d, Peak %d' % tracemalloc.get_traced_memory())
