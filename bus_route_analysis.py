@@ -6,7 +6,8 @@ def number_routes(inlistdict):
 	totals = collections.Counter()
 	for k in inlistdict:
 		totals[k['route']] +=1
-	return len(totals)
+		
+	return f'the total number of bus routes is: {len(totals)}'
 	
 def get_numberRiders_onADay(inlistdict, date, routename):
 	d = collections.defaultdict(list)
@@ -29,25 +30,21 @@ def best_10yr_route(inlistdict, start_yr):
 	for k in inlistdict:
 		if k['date'].split('/')[2] == start_yr:
 			year1totals[k['route']] += k['rides']
-		
-		
+			
 	for k in inlistdict:
 		if k['date'].split('/')[2]:
 			otherYearTotals[k['route']] += k['rides']		
 	
-	summary = {}
-	for k in otherYearTotals:
-		summary.update({k:(otherYearTotals[k] - year1totals[k])})
-			
-	return f'the top 5 most increased routes since 2001 are: {collections.Counter(summary).most_common(5)}'
+	#you can do arithamtic on counters!
+	summary = otherYearTotals-year1totals
+	return f'the top 5 most increased routes since {start_yr} are: {collections.Counter(summary).most_common(5)}'
 		
 def main():
 	#load data as dict from csv
 	ride_data = read_rides_as_dicts('Data/ctabus.csv')
 	
 	#get total number routes
-	route_totals = number_routes(ride_data)
-	print(f'the total number of bus routes is: {route_totals}')
+	print(number_routes(ride_data))
 	
 	#get passenger count on a given day
 	print(get_numberRiders_onADay(ride_data, '02/02/2011', '22'))
