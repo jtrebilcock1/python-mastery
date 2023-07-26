@@ -11,6 +11,10 @@ class Stock:
 		self.name = name
 		self.shares = shares
 		self.price = price	
+		
+	def __repr__(self): #this lets us print instances in a readable way
+		# Note: The !r format code produces the repr() string
+		return f'{type(self).__name__}({self.name!r}, {self.shares!r}, {self.price!r})'	
 	
 	@staticmethod
 	def aTestClassMethod():
@@ -43,13 +47,18 @@ class Stock:
 			raise ValueError('shares must be greater than or equal to 0')	
 		self._shares = value
 	
-	#@property
+	@property
 	def cost(self):
 		return round(int(self.shares) * float(self.price),2)
 	
 	def sell(self, amount):
 		self.shares-= amount
 		
+	def __eq__(self, other):
+		#checks if it is also a member of stock then checks individual attributes
+		return isinstance(other, Stock) and ((self.name, self.shares, self.price) == 
+		                                     (other.name, other.shares, other.price))	
+	
 def print_portfolio(portfolio):
 	for p in portfolio:
 		print(f"{p.name:<25}{p.shares:<25}{p.price:<25}")

@@ -2,7 +2,8 @@
 
 
 class TableFormatter:
-	'''this iz an'''
+	'''this iz an abstract base class'''
+	#i think it is pointless currently, if you remove the inheritance all the format classes work fine?
 	def headings(self, headers):
 		raise NotImplementedError()
 
@@ -36,6 +37,16 @@ class CSVTableFormatter(TableFormatter):
 
 	def row(self, rowdata):
 		print(','.join(str(d) for d in rowdata))
+
+class redirect_stdout:
+	def __init__(self, out_file):
+		self.out_file = out_file
+	def __enter__(self):
+		self.stdout = sys.stdout
+		sys.stdout = self.out_file
+		return self.out_file
+	def __exit__(self, ty, val, tb):
+		sys.stdout = self.stdout
 		
 #def print_table(objlist,att_names):
 	#print(' '.join(f'{fieldname:<10}' for fieldname in att_names))
@@ -49,13 +60,15 @@ def print_table(records, fields, formatter):
 		rowdata = [getattr(r, fieldname) for fieldname in fields]
 		formatter.row(rowdata)
 		
-def create_formatter(chosen_type, records, fields):
-	if chosen_type.upper() == 'HTML':
-		print_table(records, fields, HTMLTableFormatter())
-	if chosen_type.upper() == 'TEXT':
-		print_table(records, fields, TextTableFormatter())	
-	if chosen_type.upper() == 'CSV':
-		print_table(records, fields, CSVTableFormatter())		
+def create_formatter(name):
+	if name == 'text':
+		formatter_cls = TextTableFormatter
+	elif name == 'csv':
+		formatter_cls = CSVTableFormatter
+	elif name == 'html':
+		formatter_cls = HTMLTableFormatter	
+	else:
+		raise RuntimeError('Unknown format %s' % name)
+	return formatter_cls()	
 		
-		
-		
+	
