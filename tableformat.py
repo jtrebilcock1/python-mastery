@@ -1,12 +1,24 @@
+from abc import ABC, abstractmethod
 
-
-
-class TableFormatter:
+class ColumnFormatMixin:
+	#to be used with classes that have a row method
+	formats = []
+	def row(self, rowdata):
+		rowdata = [(fmt % d) for fmt, d in zip(self.formats, rowdata)]
+		super().row(rowdata)
+		
+class UpperHeadersMixin:
+	#extend functionality of class that have headings method
+	def headings(self, headers):
+		super().headings([h.upper() for h in headers])		
+		
+class TableFormatter(ABC):
 	'''this iz an abstract base class'''
-	#i think it is pointless currently, if you remove the inheritance all the format classes work fine?
+	@abstractmethod
 	def headings(self, headers):
 		raise NotImplementedError()
 
+	@abstractmethod
 	def row(self, rowdata):
 		raise NotImplementedError()
 
@@ -55,12 +67,16 @@ class redirect_stdout:
 		#print(' '.join(f'{getattr(record, fieldname):<10}' for fieldname in att_names))	
 		
 def print_table(records, fields, formatter):
-	formatter.headings(fields)
-	for r in records:
-		rowdata = [getattr(r, fieldname) for fieldname in fields]
-		formatter.row(rowdata)
+	if isinstance(formatter, TableFormatter):
+		formatter.headings(fields)
+		for r in records:
+				rowdata = [getattr(r, fieldname) for fieldname in fields]
+				formatter.row(rowdata)
+	else:
+		raise TypeError('object is not a member of TableFormatter')
 		
-def create_formatter(name):
+def create_formatter(name, column_formats=None, upper_headers=False):
+		
 	if name == 'text':
 		formatter_cls = TextTableFormatter
 	elif name == 'csv':
@@ -69,6 +85,15 @@ def create_formatter(name):
 		formatter_cls = HTMLTableFormatter	
 	else:
 		raise RuntimeError('Unknown format %s' % name)
+	
+	if column_formats:
+		#column_formats input should be like ['"%s"','%d','%0.2f']
+		class formatter_cls(ColumnFormatMixin, formatter_cls):
+			formats = column_formats
+
+	if upper_headers:
+		class formatter_cls(UpperHeadersMixin, formatter_cls):
+			pass	
 	return formatter_cls()	
 		
 	
